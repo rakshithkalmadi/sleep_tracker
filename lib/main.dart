@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:syncfusion_flutter_charts/charts.dart';  // Import Syncfusion chart package
 import 'dart:async';
 
 void main() {
@@ -75,6 +76,21 @@ class _SleepTrackerPageState extends State<SleepTrackerPage> {
     return "${duration.inHours} hours, ${duration.inMinutes % 60} minutes, ${duration.inSeconds % 60} seconds";
   }
 
+  List<ChartData> _prepareChartData() {
+    List<ChartData> data = [];
+    for (int i = 1; i < _openTimes.length; i++) {
+      DateTime prev = DateTime.parse(_openTimes[i]);
+      DateTime curr = DateTime.parse(_openTimes[i - 1]);
+      Duration sleepDuration = curr.difference(prev);
+
+      data.add(ChartData(
+        x: prev,
+        y: sleepDuration.inSeconds.toDouble(),  // Store duration in minutes
+      ));
+    }
+    return data;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -100,6 +116,25 @@ class _SleepTrackerPageState extends State<SleepTrackerPage> {
             Text(
               'Last Opened: $_lastOpenTime',
               style: TextStyle(fontSize: 18),
+            ),
+            SizedBox(height: 20),
+            Container(
+              height: 200, // Adjust the height of the chart as needed
+              child: SfCartesianChart(
+                primaryXAxis: DateTimeAxis(),  // Use DateTimeAxis for the x-axis
+                primaryYAxis: NumericAxis(
+                  title: AxisTitle(text: 'Sleep Duration (seconds)'),  // Label the y-axis
+                ),
+                series: <CartesianSeries>[
+                  LineSeries<ChartData, DateTime>(
+                    dataSource: _prepareChartData(),
+                    xValueMapper: (ChartData data, _) => data.x,
+                    yValueMapper: (ChartData data, _) => data.y,
+                    color: Colors.blue,
+                    markerSettings: MarkerSettings(isVisible: true),
+                  ),
+                ],
+              ),
             ),
             SizedBox(height: 20),
             Expanded(
@@ -147,4 +182,11 @@ class _SleepTrackerPageState extends State<SleepTrackerPage> {
       ),
     ) ?? false;
   }
+}
+
+class ChartData {
+  final DateTime x;
+  final double y;
+
+  ChartData({required this.x, required this.y});
 }
