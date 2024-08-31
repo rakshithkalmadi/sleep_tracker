@@ -85,7 +85,7 @@ class _SleepTrackerPageState extends State<SleepTrackerPage> {
 
       data.add(ChartData(
         x: prev,
-        y: sleepDuration.inSeconds.toDouble(),  // Store duration in minutes
+        y: sleepDuration.inMinutes.toDouble(),  // Store duration in minutes
       ));
     }
     return data;
@@ -123,7 +123,7 @@ class _SleepTrackerPageState extends State<SleepTrackerPage> {
               child: SfCartesianChart(
                 primaryXAxis: DateTimeAxis(),  // Use DateTimeAxis for the x-axis
                 primaryYAxis: NumericAxis(
-                  title: AxisTitle(text: 'Sleep Duration (seconds)'),  // Label the y-axis
+                  title: AxisTitle(text: 'Sleep Duration (minutes)'),  // Label the y-axis
                 ),
                 series: <CartesianSeries>[
                   LineSeries<ChartData, DateTime>(
